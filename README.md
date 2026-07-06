@@ -1,5 +1,8 @@
 # TaskBrief
 
+[![CI](https://github.com/MyoungSoo7/taskbrief/actions/workflows/ci.yml/badge.svg)](https://github.com/MyoungSoo7/taskbrief/actions/workflows/ci.yml)
+[![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/)
+
 **AI 브리핑 기능이 있는 할일 관리 REST API.** 사용자별 할일을 관리하고, 등록된 할일을 LLM에 보내 "오늘 무엇을 먼저 해야 하는지"를 요약해 주는 일일/주간 브리핑을 제공한다. FastAPI 기반 포트폴리오 프로젝트로, 계층 분리·테스트 용이성·실행 재현성에 비중을 두고 설계했다.
 
 ## 핵심 기능
