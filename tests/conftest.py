@@ -27,3 +27,21 @@ async def client(session_factory):
     async with AsyncClient(transport=transport, base_url="http://test") as c:
         yield c
     app.dependency_overrides.clear()
+
+
+@pytest.fixture
+async def auth_headers(client):
+    await client.post("/auth/signup", json={"email": "me@test.com", "password": "password123"})
+    res = await client.post(
+        "/auth/login", data={"username": "me@test.com", "password": "password123"}
+    )
+    return {"Authorization": f"Bearer {res.json()['access_token']}"}
+
+
+@pytest.fixture
+async def other_auth_headers(client):
+    await client.post("/auth/signup", json={"email": "other@test.com", "password": "password123"})
+    res = await client.post(
+        "/auth/login", data={"username": "other@test.com", "password": "password123"}
+    )
+    return {"Authorization": f"Bearer {res.json()['access_token']}"}
