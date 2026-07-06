@@ -9,3 +9,4 @@ PyJWT>=2.9
 bcrypt>=4.1
 anthropic>=0.40
 python-multipart>=0.0.9
+tzdata>=2024.1
