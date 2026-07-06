@@ -24,6 +24,6 @@ def test_expired_token_rejected():
 
 
 def test_tampered_token_rejected():
-    token = pyjwt.encode({"sub": "42"}, "wrong-secret", algorithm=settings.jwt_algorithm)
+    token = pyjwt.encode({"sub": "42"}, "different-wrong-secret-" + "y" * 16, algorithm=settings.jwt_algorithm)
     with pytest.raises(pyjwt.InvalidTokenError):
         decode_token(token)

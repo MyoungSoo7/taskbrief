@@ -3,8 +3,15 @@ from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.pool import StaticPool
 
+from app.core.config import settings
 from app.db import Base, get_session
 from app.main import app
+
+
+@pytest.fixture(autouse=True)
+def _strong_jwt_secret(monkeypatch):
+    """테스트에서 RFC 7518 권장 길이(32바이트+)의 시크릿을 써 JWT 서명 키 길이 경고를 없앤다."""
+    monkeypatch.setattr(settings, "jwt_secret", "test-secret-" + "x" * 32)
 
 
 @pytest.fixture
