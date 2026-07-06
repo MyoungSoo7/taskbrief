@@ -69,3 +69,47 @@ async def test_other_users_task_is_404(client, auth_headers, other_auth_headers)
         await client.patch(f"/tasks/{task_id}", json={"title": "탈취"}, headers=auth_headers)
     ).status_code == 404
     assert (await client.delete(f"/tasks/{task_id}", headers=auth_headers)).status_code == 404
+
+
+async def test_filter_by_status(client, auth_headers):
+    t1 = await _create(client, auth_headers, "진행중 건")
+    await _create(client, auth_headers, "미착수 건")
+    await client.patch(f"/tasks/{t1}", json={"status": "doing"}, headers=auth_headers)
+
+    res = await client.get("/tasks", params={"status": "doing"}, headers=auth_headers)
+    assert [t["title"] for t in res.json()] == ["진행중 건"]
+
+
+async def test_filter_by_due_range(client, auth_headers):
+    await client.post(
+        "/tasks", json={"title": "이른 마감", "due_date": "2026-07-07T00:00:00"}, headers=auth_headers
+    )
+    await client.post(
+        "/tasks", json={"title": "늦은 마감", "due_date": "2026-07-20T00:00:00"}, headers=auth_headers
+    )
+    await client.post("/tasks", json={"title": "마감 없음"}, headers=auth_headers)
+
+    res = await client.get(
+        "/tasks",
+        params={"due_after": "2026-07-10T00:00:00", "due_before": "2026-07-31T00:00:00"},
+        headers=auth_headers,
+    )
+    assert [t["title"] for t in res.json()] == ["늦은 마감"]
+
+
+async def test_pagination(client, auth_headers):
+    for i in range(5):
+        await _create(client, auth_headers, f"할일 {i}")
+
+    res = await client.get("/tasks", params={"offset": 2, "limit": 2}, headers=auth_headers)
+    assert [t["title"] for t in res.json()] == ["할일 2", "할일 3"]
+
+
+async def test_limit_over_100_is_422(client, auth_headers):
+    res = await client.get("/tasks", params={"limit": 101}, headers=auth_headers)
+    assert res.status_code == 422
+
+
+async def test_invalid_status_filter_is_422(client, auth_headers):
+    res = await client.get("/tasks", params={"status": "unknown"}, headers=auth_headers)
+    assert res.status_code == 422
