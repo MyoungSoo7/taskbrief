@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from app.routers import auth, tasks
+from app.routers import auth, briefing, tasks
 
 app = FastAPI(
     title="TaskBrief",
@@ -10,6 +10,7 @@ app = FastAPI(
 
 app.include_router(auth.router)
 app.include_router(tasks.router)
+app.include_router(briefing.router)
 
 
 @app.get("/health", tags=["system"])
