@@ -1,5 +1,5 @@
 import hashlib
-from datetime import date, datetime, time, timedelta, timezone
+from datetime import UTC, date, datetime, time, timedelta
 
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -22,7 +22,7 @@ def _today() -> date:
 
 
 def _to_utc_naive(dt: datetime) -> datetime:
-    return dt.astimezone(timezone.utc).replace(tzinfo=None)
+    return dt.astimezone(UTC).replace(tzinfo=None)
 
 
 def _day_bounds(d: date) -> tuple[datetime, datetime]:
@@ -44,13 +44,11 @@ def _urgent_end(today: date) -> datetime:
 
 
 def _local_date(utc_naive: datetime) -> date:
-    return utc_naive.replace(tzinfo=timezone.utc).astimezone(settings.tzinfo).date()
+    return utc_naive.replace(tzinfo=UTC).astimezone(settings.tzinfo).date()
 
 
 def _fingerprint(tasks: list[Task]) -> str:
-    parts = sorted(
-        f"{t.id}:{t.status}:{t.due_date}:{t.priority}:{t.title}" for t in tasks
-    )
+    parts = sorted(f"{t.id}:{t.status}:{t.due_date}:{t.priority}:{t.title}" for t in tasks)
     return hashlib.sha256("|".join(parts).encode()).hexdigest()
 
 
@@ -58,9 +56,7 @@ def _urgent_count(tasks: list[Task], urgent_end: datetime) -> int:
     return sum(1 for t in tasks if t.due_date is not None and t.due_date < urgent_end)
 
 
-async def _target_tasks(
-    session: AsyncSession, user_id: int, kind: str, today: date
-) -> list[Task]:
+async def _target_tasks(session: AsyncSession, user_id: int, kind: str, today: date) -> list[Task]:
     base = select(Task).where(Task.user_id == user_id, Task.status != "done")
     if kind == "daily":
         # doing 상태이거나, 마감이 3일 이내인 할일.
@@ -82,9 +78,7 @@ async def _all_open_tasks(session: AsyncSession, user_id: int) -> list[Task]:
     return list((await session.scalars(stmt)).all())
 
 
-async def _latest_briefing(
-    session: AsyncSession, user_id: int, kind: str
-) -> Briefing | None:
+async def _latest_briefing(session: AsyncSession, user_id: int, kind: str) -> Briefing | None:
     stmt = (
         select(Briefing)
         .where(Briefing.user_id == user_id, Briefing.kind == kind)
@@ -112,7 +106,7 @@ async def get_briefing(session: AsyncSession, user_id: int, kind: str) -> Briefi
             summary=EMPTY_SUMMARY[kind],
             urgent_count=urgent,
             suggestions=[],
-            generated_at=datetime.now(timezone.utc).replace(tzinfo=None),
+            generated_at=datetime.now(UTC).replace(tzinfo=None),
             cached=False,
         )
 
@@ -147,9 +141,7 @@ async def get_briefing(session: AsyncSession, user_id: int, kind: str) -> Briefi
         "suggestions": result.suggestions,
         "urgent_count": urgent,
     }
-    row = Briefing(
-        user_id=user_id, kind=kind, content=content, tasks_fingerprint=fingerprint
-    )
+    row = Briefing(user_id=user_id, kind=kind, content=content, tasks_fingerprint=fingerprint)
     session.add(row)
     await session.commit()
     await session.refresh(row)

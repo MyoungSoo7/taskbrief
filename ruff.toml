@@ -1,0 +1,16 @@
+target-version = "py312"
+line-length = 100
+
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "I",   # isort (import 정렬)
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+    "W",   # pycodestyle warnings
+]
+
+[lint.per-file-ignores]
+# Alembic 자동생성 파일은 도구가 관리하므로 린트 제외
+"alembic/**" = ["E", "F", "W", "I", "B", "UP"]

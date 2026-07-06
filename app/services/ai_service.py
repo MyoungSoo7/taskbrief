@@ -44,8 +44,10 @@ def _build_prompt(tasks: list[Task], kind: str, today: date) -> str:
     return (
         f"오늘 날짜: {today:%Y-%m-%d}\n"
         f"{period}의 할일 목록:\n" + "\n".join(lines) + "\n\n"
-        f"위 할일을 바탕으로 {period}의 브리핑을 작성하세요. 우선순위와 마감 임박 건을 짚어주세요.\n"
-        '다음 JSON 스키마로만 답하세요: {"summary": "2~4문장 브리핑", "suggestions": ["추천 행동 1~3개"]}'
+        f"위 할일을 바탕으로 {period}의 브리핑을 작성하세요. "
+        "우선순위와 마감 임박 건을 짚어주세요.\n"
+        "다음 JSON 스키마로만 답하세요: "
+        '{"summary": "2~4문장 브리핑", "suggestions": ["추천 행동 1~3개"]}'
     )
 
 

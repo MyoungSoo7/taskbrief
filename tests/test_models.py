@@ -18,7 +18,8 @@ async def test_models_create(session_factory):
         assert task.created_at is not None
 
         briefing = Briefing(
-            user_id=user.id, kind="daily",
+            user_id=user.id,
+            kind="daily",
             content={"summary": "s", "suggestions": [], "urgent_count": 0},
             tasks_fingerprint="abc",
         )

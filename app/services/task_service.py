@@ -38,9 +38,7 @@ async def list_tasks(
 
 async def get_task(session: AsyncSession, user_id: int, task_id: int) -> Task | None:
     """본인 소유가 아니면 None (라우터에서 404 — 존재 여부 비노출)."""
-    return await session.scalar(
-        select(Task).where(Task.id == task_id, Task.user_id == user_id)
-    )
+    return await session.scalar(select(Task).where(Task.id == task_id, Task.user_id == user_id))
 
 
 async def update_task(session: AsyncSession, task: Task, data: TaskUpdate) -> Task:
