@@ -13,7 +13,7 @@ def test_password_hash_roundtrip():
 
 
 def test_long_password_over_72_bytes_roundtrip():
-    # bcrypt는 72바이트 초과 입력에서 ValueError를 낸다. SHA-256 pre-hash로 임의 길이를 지원해야 한다.
+    # bcrypt는 72바이트 초과 입력에서 ValueError. SHA-256 pre-hash로 임의 길이 지원.
     long_pw = "가" * 50  # 150바이트 (bcrypt 72바이트 한계 초과)
     hashed = hash_password(long_pw)
     assert verify_password(long_pw, hashed)
@@ -32,6 +32,8 @@ def test_expired_token_rejected():
 
 
 def test_tampered_token_rejected():
-    token = pyjwt.encode({"sub": "42"}, "different-wrong-secret-" + "y" * 16, algorithm=settings.jwt_algorithm)
+    token = pyjwt.encode(
+        {"sub": "42"}, "different-wrong-secret-" + "y" * 16, algorithm=settings.jwt_algorithm
+    )
     with pytest.raises(pyjwt.InvalidTokenError):
         decode_token(token)

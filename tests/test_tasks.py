@@ -82,10 +82,14 @@ async def test_filter_by_status(client, auth_headers):
 
 async def test_filter_by_due_range(client, auth_headers):
     await client.post(
-        "/tasks", json={"title": "이른 마감", "due_date": "2026-07-07T00:00:00"}, headers=auth_headers
+        "/tasks",
+        json={"title": "이른 마감", "due_date": "2026-07-07T00:00:00"},
+        headers=auth_headers,
     )
     await client.post(
-        "/tasks", json={"title": "늦은 마감", "due_date": "2026-07-20T00:00:00"}, headers=auth_headers
+        "/tasks",
+        json={"title": "늦은 마감", "due_date": "2026-07-20T00:00:00"},
+        headers=auth_headers,
     )
     await client.post("/tasks", json={"title": "마감 없음"}, headers=auth_headers)
 

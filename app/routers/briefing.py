@@ -23,12 +23,12 @@ async def _briefing_or_503(session: AsyncSession, user_id: int, kind: str) -> Br
         raise HTTPException(
             status.HTTP_503_SERVICE_UNAVAILABLE,
             "AI 기능이 설정되지 않았습니다. 서버에 ANTHROPIC_API_KEY를 설정해주세요.",
-        )
+        ) from None
     except BriefingGenerationError:
         raise HTTPException(
             status.HTTP_503_SERVICE_UNAVAILABLE,
             "AI 브리핑 생성에 실패했습니다. 잠시 후 다시 시도해주세요.",
-        )
+        ) from None
 
 
 @router.get("/daily", response_model=BriefingRead)

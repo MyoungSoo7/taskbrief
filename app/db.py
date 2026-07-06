@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
@@ -12,7 +12,7 @@ class Base(DeclarativeBase):
 
 def utcnow() -> datetime:
     """DB 저장용 naive UTC 현재 시각."""
-    return datetime.now(timezone.utc).replace(tzinfo=None)
+    return datetime.now(UTC).replace(tzinfo=None)
 
 
 engine = create_async_engine(settings.database_url)

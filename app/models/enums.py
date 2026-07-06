@@ -1,18 +1,18 @@
 import enum
 
 
-class TaskPriority(str, enum.Enum):
+class TaskPriority(enum.StrEnum):
     low = "low"
     mid = "mid"
     high = "high"
 
 
-class TaskStatus(str, enum.Enum):
+class TaskStatus(enum.StrEnum):
     todo = "todo"
     doing = "doing"
     done = "done"
 
 
-class BriefingKind(str, enum.Enum):
+class BriefingKind(enum.StrEnum):
     daily = "daily"
     weekly = "weekly"

@@ -1,6 +1,6 @@
 import base64
 import hashlib
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Annotated
 
 import bcrypt
@@ -36,7 +36,7 @@ def create_access_token(user_id: int, expires_minutes: int | None = None) -> str
         expires_minutes = settings.access_token_expire_minutes
     payload = {
         "sub": str(user_id),
-        "exp": datetime.now(timezone.utc) + timedelta(minutes=expires_minutes),
+        "exp": datetime.now(UTC) + timedelta(minutes=expires_minutes),
     }
     return jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)
 
@@ -63,7 +63,7 @@ async def get_current_user(
     try:
         user_id = decode_token(token)
     except jwt.InvalidTokenError:
-        raise _credentials_error
+        raise _credentials_error from None
     user = await session.get(User, user_id)
     if user is None:
         raise _credentials_error

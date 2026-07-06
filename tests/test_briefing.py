@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from unittest.mock import AsyncMock, patch
 
 from app.services import briefing_service
@@ -9,9 +9,7 @@ AI_RESULT = AIBriefingResult(summary="바쁜 하루입니다.", suggestions=["�
 
 def _mock_ai(**kwargs):
     """briefing_service가 참조하는 ai_service.generate_briefing을 mock."""
-    return patch.object(
-        briefing_service.ai_service, "generate_briefing", AsyncMock(**kwargs)
-    )
+    return patch.object(briefing_service.ai_service, "generate_briefing", AsyncMock(**kwargs))
 
 
 async def test_daily_briefing_generates_and_computes_urgent(client, auth_headers):
@@ -19,9 +17,7 @@ async def test_daily_briefing_generates_and_computes_urgent(client, auth_headers
         "/tasks", json={"title": "긴급 건", "due_date": "2100-01-01T00:00:00"}, headers=auth_headers
     )
     res = await client.post("/tasks", json={"title": "진행 건"}, headers=auth_headers)
-    await client.patch(
-        f"/tasks/{res.json()['id']}", json={"status": "doing"}, headers=auth_headers
-    )
+    await client.patch(f"/tasks/{res.json()['id']}", json={"status": "doing"}, headers=auth_headers)
 
     with _mock_ai(return_value=AI_RESULT) as mocked:
         res = await client.get("/briefing/daily", headers=auth_headers)
@@ -36,7 +32,7 @@ async def test_daily_briefing_generates_and_computes_urgent(client, auth_headers
 
 async def test_daily_includes_todo_due_within_3_days(client, auth_headers):
     # 스펙의 핵심 daily 규칙: todo이면서 마감 3일 이내 → 대상 포함 + urgent 집계
-    due = (datetime.now(timezone.utc) + timedelta(days=1)).replace(microsecond=0)
+    due = (datetime.now(UTC) + timedelta(days=1)).replace(microsecond=0)
     await client.post(
         "/tasks", json={"title": "임박 건", "due_date": due.isoformat()}, headers=auth_headers
     )

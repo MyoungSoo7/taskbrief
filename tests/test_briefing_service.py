@@ -51,9 +51,9 @@ def test_week_bounds_start_monday():
 def test_urgent_count_counts_due_within_window():
     urgent_end = datetime(2026, 7, 9, 15, 0)  # today(7/6)+3일의 KST 자정 경계(UTC)
     tasks = [
-        _task(id=1, due_date=datetime(2026, 7, 7, 3, 0)),   # 3일 이내 → urgent
-        _task(id=2, due_date=datetime(2026, 7, 1, 0, 0)),   # 이미 지남 → urgent
+        _task(id=1, due_date=datetime(2026, 7, 7, 3, 0)),  # 3일 이내 → urgent
+        _task(id=2, due_date=datetime(2026, 7, 1, 0, 0)),  # 이미 지남 → urgent
         _task(id=3, due_date=datetime(2026, 7, 20, 0, 0)),  # 먼 미래 → not urgent
-        _task(id=4, due_date=None, status="doing"),          # 마감 없음 → not urgent
+        _task(id=4, due_date=None, status="doing"),  # 마감 없음 → not urgent
     ]
     assert briefing_service._urgent_count(tasks, urgent_end) == 2

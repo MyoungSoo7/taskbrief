@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/MyoungSoo7/taskbrief/actions/workflows/ci.yml/badge.svg)](https://github.com/MyoungSoo7/taskbrief/actions/workflows/ci.yml)
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
 **AI 브리핑 기능이 있는 할일 관리 REST API.** 사용자별 할일을 관리하고, 등록된 할일을 LLM에 보내 "오늘 무엇을 먼저 해야 하는지"를 요약해 주는 일일/주간 브리핑을 제공한다. FastAPI 기반 포트폴리오 프로젝트로, 계층 분리·테스트 용이성·실행 재현성에 비중을 두고 설계했다.
 
@@ -107,6 +108,7 @@ sequenceDiagram
 | LLM | Claude API (공식 `anthropic` 비동기 SDK) | 구조화 JSON 출력. API 키는 `.env`로 관리 |
 | 설정 | pydantic-settings | `.env` 기반 환경별 설정 |
 | 테스트 | pytest + pytest-asyncio + httpx AsyncClient | LLM 호출은 mock으로 대체 |
+| 코드 품질 | ruff (린트 + 포맷) | CI에서 `ruff check` · `ruff format --check` 자동 검사 |
 | 실행 환경 | Docker + docker compose | 한 번에 실행 |
 
 ## 빠른 시작
@@ -208,4 +210,3 @@ docker compose up --build
 - **리프레시 토큰 회전**: 현재는 60분 만료 access token만 발급. 리프레시 토큰 회전 도입.
 - **PostgreSQL 전환**: `DATABASE_URL` 한 줄(`postgresql+asyncpg://...`)로 전환 가능하도록 이미 async ORM으로 설계됨.
 - **브리핑 SSE 스트리밍**: 긴 브리핑을 토큰 단위로 스트리밍 전송.
-- **린트/포매터**: 현재 CI는 테스트만 실행 — ruff 린트·포맷 검사 단계 추가 예정.

@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -7,7 +7,7 @@ from app.models.enums import TaskPriority, TaskStatus
 
 def _to_utc_naive(v: datetime | None) -> datetime | None:
     if v is not None and v.tzinfo is not None:
-        return v.astimezone(timezone.utc).replace(tzinfo=None)
+        return v.astimezone(UTC).replace(tzinfo=None)
     return v
 
 
