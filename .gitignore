@@ -5,3 +5,5 @@ __pycache__/
 *.db
 data/
 .pytest_cache/
+.idea/
+.omc/
