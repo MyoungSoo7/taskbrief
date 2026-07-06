@@ -1,0 +1,43 @@
+### TaskBrief 수동 테스트 플로우
+### 위에서부터 순서대로 실행하세요. 로그인 후 access_token을 아래 @token 변수에 붙여넣습니다.
+
+### 헬스체크
+GET http://127.0.0.1:8000/health
+
+### 회원가입
+POST http://127.0.0.1:8000/auth/signup
+Content-Type: application/json
+
+{"email": "me@test.com", "password": "password123"}
+
+### 로그인 (응답의 access_token을 아래 @token에 복사)
+POST http://127.0.0.1:8000/auth/login
+Content-Type: application/x-www-form-urlencoded
+
+username=me@test.com&password=password123
+
+### 이후 요청 공통 변수
+@token = PASTE_ACCESS_TOKEN_HERE
+
+### 현재 사용자
+GET http://127.0.0.1:8000/auth/me
+Authorization: Bearer {{token}}
+
+### 할일 생성
+POST http://127.0.0.1:8000/tasks
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"title": "보고서 작성", "priority": "high", "due_date": "2026-07-08T18:00:00+09:00"}
+
+### 할일 목록 (필터)
+GET http://127.0.0.1:8000/tasks?status=todo&limit=20
+Authorization: Bearer {{token}}
+
+### 일일 브리핑
+GET http://127.0.0.1:8000/briefing/daily
+Authorization: Bearer {{token}}
+
+### 주간 브리핑
+GET http://127.0.0.1:8000/briefing/weekly
+Authorization: Bearer {{token}}
