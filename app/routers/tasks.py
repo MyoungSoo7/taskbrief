@@ -35,3 +35,27 @@ async def list_tasks(
     return await task_service.list_tasks(
         session, user.id, status_filter, due_before, due_after, offset, limit
     )
+
+
+async def _get_or_404(session: AsyncSession, user_id: int, task_id: int):
+    task = await task_service.get_task(session, user_id, task_id)
+    if task is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "할일을 찾을 수 없습니다.")
+    return task
+
+
+@router.get("/{task_id}", response_model=TaskRead)
+async def get_task(task_id: int, user: UserDep, session: SessionDep):
+    return await _get_or_404(session, user.id, task_id)
+
+
+@router.patch("/{task_id}", response_model=TaskRead)
+async def update_task(task_id: int, payload: TaskUpdate, user: UserDep, session: SessionDep):
+    task = await _get_or_404(session, user.id, task_id)
+    return await task_service.update_task(session, task, payload)
+
+
+@router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_task(task_id: int, user: UserDep, session: SessionDep):
+    task = await _get_or_404(session, user.id, task_id)
+    await task_service.delete_task(session, task)

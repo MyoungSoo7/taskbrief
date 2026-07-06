@@ -30,3 +30,42 @@ async def test_list_tasks_returns_own_tasks_only(client, auth_headers, other_aut
     assert res.status_code == 200
     titles = [t["title"] for t in res.json()]
     assert titles == ["내 할일"]
+
+
+async def _create(client, headers, title="할일"):
+    res = await client.post("/tasks", json={"title": title}, headers=headers)
+    return res.json()["id"]
+
+
+async def test_get_task(client, auth_headers):
+    task_id = await _create(client, auth_headers)
+    res = await client.get(f"/tasks/{task_id}", headers=auth_headers)
+    assert res.status_code == 200
+    assert res.json()["id"] == task_id
+
+
+async def test_patch_task_updates_fields(client, auth_headers):
+    task_id = await _create(client, auth_headers)
+    res = await client.patch(
+        f"/tasks/{task_id}", json={"status": "doing", "priority": "high"}, headers=auth_headers
+    )
+    assert res.status_code == 200
+    assert res.json()["status"] == "doing"
+    assert res.json()["priority"] == "high"
+
+
+async def test_delete_task_204_then_404(client, auth_headers):
+    task_id = await _create(client, auth_headers)
+    res = await client.delete(f"/tasks/{task_id}", headers=auth_headers)
+    assert res.status_code == 204
+    res = await client.get(f"/tasks/{task_id}", headers=auth_headers)
+    assert res.status_code == 404
+
+
+async def test_other_users_task_is_404(client, auth_headers, other_auth_headers):
+    task_id = await _create(client, other_auth_headers, "남의 할일")
+    assert (await client.get(f"/tasks/{task_id}", headers=auth_headers)).status_code == 404
+    assert (
+        await client.patch(f"/tasks/{task_id}", json={"title": "탈취"}, headers=auth_headers)
+    ).status_code == 404
+    assert (await client.delete(f"/tasks/{task_id}", headers=auth_headers)).status_code == 404
