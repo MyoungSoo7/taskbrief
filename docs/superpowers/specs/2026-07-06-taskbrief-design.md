@@ -74,8 +74,8 @@ alembic/
 
 ### 인증
 
-- `POST /auth/signup` — 이메일+비밀번호 가입. 중복 이메일이면 409.
-- `POST /auth/login` — OAuth2 Password Flow, JWT access token 발급. 실패 시 401.
+- `POST /auth/signup` — 이메일+비밀번호 가입. 중복 이메일이면 409. 비밀번호 최소 8자 (Pydantic 검증).
+- `POST /auth/login` — OAuth2 Password Flow, JWT access token 발급 (만료 **60분**, 설정으로 변경 가능). 실패 시 401.
 
 ### 할일 CRUD (모두 JWT 필요)
 
@@ -86,8 +86,10 @@ alembic/
 
 ### AI 브리핑 (핵심 기능, JWT 필요)
 
-- `GET /briefing/daily` — 오늘 마감이거나 진행 중(doing) 또는 미착수(todo)이면서 마감 임박한 할일을 대상으로 브리핑 생성
+- `GET /briefing/daily` — 오늘 마감이거나 진행 중(doing)이거나, 미착수(todo)이면서 마감이 **3일 이내**인 할일을 대상으로 브리핑 생성
 - `GET /briefing/weekly` — 이번 주(월~일) 범위 할일 대상
+- 날짜/주 계산의 시간대 기준은 **`Asia/Seoul` 고정** (설정값 `TIMEZONE`으로 변경 가능)
+- `urgent_count`는 LLM 출력이 아닌 **서버에서 계산** (마감 3일 이내 미완료 할일 수) — 결정적이고 테스트 가능
 - 응답 스키마:
 
 ```json
@@ -108,7 +110,7 @@ GET /briefing/daily
 → 대상 할일 조회
 → 할일 0개면: LLM 호출 없이 고정 응답("오늘은 등록된 할일이 없어요") 반환
 → 할일 fingerprint 계산 → 동일 kind의 캐시와 비교
-→ 캐시 유효(같은 날 + 같은 fingerprint): 캐시 반환 (cached=true)
+→ 캐시 유효(같은 날 + 같은 fingerprint — daily/weekly 동일 규칙, weekly도 날이 바뀌면 재생성): 캐시 반환 (cached=true)
 → 캐시 무효: 프롬프트 구성 → Claude API 호출 (구조화 JSON 출력 요구)
 → 응답 JSON 파싱 → Pydantic 검증 → Briefing 테이블에 저장 → 반환
 ```
